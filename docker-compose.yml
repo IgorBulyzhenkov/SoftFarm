@@ -1,0 +1,54 @@
+version: '4.3'
+services:
+  app:
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    container_name: fermer_app
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./:/var/www/html
+    networks:
+      - laravel_net
+    environment:
+      - DB_CONNECTION=pgsql
+      - DB_HOST=db
+      - DB_PORT=5432
+      - DB_DATABASE=fermer
+      - DB_USERNAME=fermer
+      - DB_PASSWORD=secret
+
+  db:
+    image: postgres:15
+    container_name: fermer_db
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: fermer
+      POSTGRES_PASSWORD: secret
+      POSTGRES_DB: fermer
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    networks:
+      - laravel_net
+
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: fermer_pgadmin
+    ports:
+      - "5050:80"
+    environment:
+      PGADMIN_DEFAULT_EMAIL: fermers@example.com
+      PGADMIN_DEFAULT_PASSWORD: feRmErS
+    depends_on:
+      - db
+    networks:
+      - laravel_net
+
+networks:
+  laravel_net:
+    driver: bridge
+
+volumes:
+  db_data:
